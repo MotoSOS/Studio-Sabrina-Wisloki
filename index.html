@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Sabrina Wiloski - V7 Supabase</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#c79a36;--gold-dark:#8a651d;--line:#eadbb9;--muted:#7b6f5e;--text:#251f17;--danger:#b3261e;--success:#1f7a3f}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Montserrat,Arial,sans-serif}
+body{background:linear-gradient(180deg,#fff,#fffdf7);color:var(--text)}
+.app{max-width:560px;margin:auto;min-height:100vh;background:#ffffffcc}
+header{position:sticky;top:0;z-index:10;background:linear-gradient(135deg,#fff,#fffaf0,#f7e7bc);padding:18px;border-radius:0 0 30px 30px;box-shadow:0 12px 30px #503a201f}
+.top{display:flex;gap:12px;align-items:center}.menu{width:44px;height:44px;border:1px solid #c79a3670;border-radius:15px;background:#fffaf0;color:var(--gold-dark);font-size:24px}
+h1{font-family:'Great Vibes',cursive;color:var(--gold-dark);font-weight:400;font-size:36px;line-height:1}.sub{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.pill{margin-top:14px;border:1px solid #c79a3655;background:#ffffffaa;border-radius:18px;padding:12px;color:var(--gold-dark);font-size:13px;font-weight:800}
+.drawer{position:fixed;left:-290px;top:0;width:280px;height:100vh;background:#fffaf0;z-index:30;padding:24px;transition:.25s;box-shadow:8px 0 25px #0002}
+.drawer.open{left:0}.drawer h2{font-family:'Great Vibes',cursive;font-size:38px;color:var(--gold-dark);font-weight:400}.drawer button{width:100%;padding:14px;margin-top:10px;border-radius:16px;border:1px solid #c79a3640;background:white;color:var(--gold-dark);font-weight:900;text-align:left}
+.overlay{display:none;position:fixed;inset:0;background:#0004;z-index:25}.overlay.show{display:block}
+main{padding:20px 20px 90px}.screen{display:none}.screen.active{display:block}
+.card{background:white;border:1px solid #c79a3638;border-radius:24px;padding:18px;margin-bottom:16px;box-shadow:0 8px 24px #503a2012}.card h3{color:var(--gold-dark);margin-bottom:13px}
+.hero{text-align:center;background:linear-gradient(180deg,#fff,#fffaf0);border-radius:30px}.hero h2{font-family:'Great Vibes',cursive;color:var(--gold-dark);font-size:44px;font-weight:400}.hero p,.muted{color:var(--muted);font-size:13px;line-height:1.45}.icon{width:78px;height:78px;margin:0 auto 12px;border-radius:28px;background:linear-gradient(135deg,#fff,#f1d486,#9b741f);color:white;display:flex;align-items:center;justify-content:center;font-size:36px}
+label{display:block;color:var(--gold-dark);font-size:12px;font-weight:900;text-transform:uppercase;margin-bottom:6px}input,select,textarea{width:100%;padding:14px;border-radius:15px;border:1px solid var(--line);margin-bottom:12px;font-size:14px;background:white}textarea{min-height:80px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.btn{width:100%;padding:14px;border-radius:16px;border:0;margin-top:8px;font-weight:900;cursor:pointer}.primary{background:linear-gradient(135deg,#b58522,#f1d486,#9b741f);color:white}.soft{background:#fffaf0;color:var(--gold-dark);border:1px solid #c79a3640}.danger{background:#fff0ee;color:var(--danger);border:1px solid #b3261e33}.success{background:#eefaf2;color:var(--success);border:1px solid #1f7a3f33}.small{font-size:12px;padding:10px}
+.info{display:flex;gap:12px;background:#fffaf0;border:1px solid #c79a3640;border-radius:18px;padding:13px;margin-bottom:10px}.info b{color:var(--gold-dark)}.info p{font-size:13px;color:var(--muted);line-height:1.4}
+.extra{display:flex;justify-content:space-between;gap:10px;align-items:center;background:#fffaf0;border:1px solid #c79a3640;border-radius:18px;padding:13px;margin-bottom:10px}.extra input{width:22px;height:22px;margin:0;accent-color:var(--gold)}
+.summary{background:#fffaf0;border:1px solid #c79a3640;border-radius:18px;padding:14px;color:var(--gold-dark);font-weight:900;line-height:1.7}
+.hours{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.hour{padding:12px;border-radius:15px;border:1px solid #c79a3648;background:white;color:var(--gold-dark);font-weight:900}.hour.active{background:linear-gradient(135deg,#b58522,#f1d486,#9b741f);color:white}
+.notice{margin-top:12px;background:#fffaf0;border:1px solid #c79a3640;border-radius:18px;padding:13px;color:var(--gold-dark);font-size:13px;font-weight:800}.ok{display:none;margin-top:12px;background:#eefaf2;border:1px solid #1f7a3f33;color:var(--success);border-radius:18px;padding:13px;font-size:13px;font-weight:900}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}.tab{border:1px solid #c79a3640;background:#fffaf0;color:var(--gold-dark);border-radius:14px;padding:10px 5px;font-weight:900;font-size:11px}.tab.active{background:linear-gradient(135deg,#b58522,#f1d486,#9b741f);color:white}
+.panel{display:none}.panel.active{display:block}.metricBox{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{background:#fffaf0;border:1px solid #c79a3640;border-radius:18px;padding:14px;color:var(--gold-dark)}.metric strong{display:block;font-size:22px}
+.item{border-left:4px solid var(--gold);background:#fffdf8;padding:14px;border-radius:16px;margin-bottom:10px;font-size:14px;line-height:1.5}.badge{display:inline-block;background:#fffaf0;border:1px solid #c79a3640;color:var(--gold-dark);border-radius:99px;padding:5px 8px;font-size:11px;font-weight:900}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.float{position:fixed;right:18px;bottom:18px;width:58px;height:58px;border-radius:22px;border:0;background:linear-gradient(135deg,#1f7a3f,#34c96b);color:white;font-size:26px;box-shadow:0 12px 28px #1f7a3f44}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:10px 0 22px;font-weight:700;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="top"><button class="menu" id="menuBtn">☰</button><div><h1>Studio Sabrina Wiloski</h1><div class="sub">Agenda premium online</div></div></div><div class="pill">✨ Segunda a sexta 09:00 às 19:00 • Sábado 09:00 às 16:00</div></header>
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer"><h2>Studio Sabrina</h2><button data-screen="home">🏠 Início</button><button data-screen="client">💅 Acesso Cliente</button><button data-screen="internal">🔒 Acesso Interno</button><button id="wppMenu">📲 WhatsApp</button><button id="mapsMenu">📍 Como chegar</button></aside>
+<main>
+<section id="home" class="screen active">
+<div class="card hero"><div class="icon">💅</div><h2>Agende seu horário</h2><p>Escolha seu procedimento, veja o valor final e solicite seu atendimento pelo aplicativo.</p><button class="btn primary" data-screen="client">Agendar agora</button><button class="btn soft" id="mapsHome">📍 Como chegar</button></div>
+<div class="card"><h3>Informações do Studio</h3><div class="info"><div>📲</div><div><b>WhatsApp</b><p>(47) 98427-6419</p></div></div><div class="info"><div>🕘</div><div><b>Horário</b><p>Segunda a sexta: 09:00 às 19:00<br>Sábado: 09:00 às 16:00</p></div></div><div class="info"><div>📍</div><div><b>Localização</b><p>R. Jailson Francisco de Miranda, 95<br>CEP 88341-173</p></div></div></div>
+</section>
+<section id="client" class="screen">
+<div class="card"><h3>Cadastro da cliente</h3><label>Nome completo</label><input id="nome"><div class="grid2"><div><label>Nascimento</label><input type="date" id="nascimento"></div><div><label>WhatsApp</label><input id="telefone" placeholder="47 99999-9999"></div></div><label>E-mail</label><input id="email" type="email"></div>
+<div class="card"><h3>Escolha o serviço</h3><label>Serviço</label><select id="servico"></select><h3>Adicionais</h3><div id="extras"></div><div class="summary" id="summary">Valor total: R$0,00<br>Tempo estimado: 0min</div></div>
+<div class="card"><h3>Data e horário</h3><label>Data</label><input id="data" type="date"><h3>Horários disponíveis</h3><div class="hours" id="horarios"></div><div class="notice">Para cancelar ou reagendar, entre em contato diretamente com o Studio.</div><div id="ok" class="ok"></div><button class="btn primary" id="confirmar">Confirmar agendamento</button></div>
+</section>
+<section id="internal" class="screen">
+<div class="card" id="loginBox"><h3>Acesso interno</h3><p class="muted">Área exclusiva do Studio.</p><label>Usuário</label><input id="user" placeholder="admin"><label>Senha</label><input id="pass" type="password" placeholder="0000"><button class="btn primary" id="login">Entrar</button><p class="muted" style="text-align:center;margin-top:10px">Login inicial: admin • Senha: 0000</p></div>
+<div id="dashboard" style="display:none"><div class="card"><h3>Painel interno</h3><div class="metricBox"><div class="metric">Agendamentos<strong id="qtd">0</strong></div><div class="metric">Previsto<strong id="previsto">R$0</strong></div></div><div class="tabs"><button class="tab active" data-tab="agenda">Agenda</button><button class="tab" data-tab="servicosPanel">Serviços</button><button class="tab" data-tab="extrasPanel">Adicionais</button><button class="tab" data-tab="config">Config.</button></div>
+<div id="agenda" class="panel active"><button class="btn soft" id="atualizar">Atualizar agenda</button><div id="lista" style="margin-top:15px"></div></div>
+<div id="servicosPanel" class="panel"><h3>Cadastrar serviço</h3><input id="srvNome" placeholder="Nome"><div class="grid2"><input id="srvValor" type="number" placeholder="Valor"><input id="srvTempo" type="number" placeholder="Tempo min"></div><textarea id="srvDesc" placeholder="Descrição"></textarea><button class="btn primary" id="salvarServico">Salvar serviço</button><div id="listaServicos" style="margin-top:15px"></div></div>
+<div id="extrasPanel" class="panel"><h3>Cadastrar adicional</h3><input id="addNome" placeholder="Nome"><div class="grid2"><input id="addValor" type="number" placeholder="Valor"><input id="addTempo" type="number" placeholder="Tempo min"></div><input id="addDesc" placeholder="Descrição curta"><button class="btn primary" id="salvarExtra">Salvar adicional</button><div id="listaExtras" style="margin-top:15px"></div></div>
+<div id="config" class="panel"><h3>Configurações locais</h3><label>Usuário</label><input id="configUser"><label>Senha</label><input id="configPass"><button class="btn primary" id="salvarConfig">Salvar login/senha</button><button class="btn soft" id="logout">Sair</button></div>
+</div></div>
+</section>
+</main><button class="float" id="float">☎</button><footer>Studio Sabrina Wiloski © 2026<br>R. Jailson Francisco de Miranda, 95 • CEP 88341-173</footer>
+</div>
+<script>
+const SUPABASE_URL="https://nrmglwgrwglgkrhkohby.supabase.co";
+const SUPABASE_KEY="sb_publishable_v3WJh6ElDsVW0cBfBWsSqA_Q1lXpnjn";
+const WPP="5547984276419";
+let servicos=[], adicionais=[], horariosDB=[], agendamentos=[], horaSel="", servicoAtual=null, extrasSel=[], valorTotal=0, tempoTotal=0;
+let loginData=JSON.parse(localStorage.getItem("studio_sabrina_login")||'{"user":"admin","pass":"0000"}');
+async function api(path,opt={}){
+ const res=await fetch(SUPABASE_URL+"/rest/v1/"+path,{...opt,headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",Prefer:"return=representation",...(opt.headers||{})}});
+ if(!res.ok) throw new Error(await res.text());
+ if(res.status===204) return null;
+ return await res.json();
+}
+function money(v){return Number(v||0).toFixed(2).replace(".",",")}
+function tempo(m){m=Number(m||0);let h=Math.floor(m/60),r=m%60;return h&&r?`${h}h${r}min`:h?`${h}h`:`${r}min`}
+function tela(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");fechar();if(id==="internal") carregarAgenda()}
+function abrirMenu(){drawer.classList.toggle("open");overlay.classList.toggle("show")}
+function fechar(){drawer.classList.remove("open");overlay.classList.remove("show")}
+async function carregar(){
+ try{
+  servicos=await api("servicos?select=*&ativo=eq.true&order=nome.asc");
+  adicionais=await api("adicionais?select=*&ativo=eq.true&order=nome.asc");
+  horariosDB=await api("horarios?select=*&ativo=eq.true&order=dia_semana.asc,horario.asc");
+  await carregarAgenda();
+  renderCliente();renderInterno();
+ }catch(e){alert("Erro ao carregar Supabase: "+e.message)}
+}
+async function carregarAgenda(){
+ try{agendamentos=await api("agendamentos?select=*,clientes(nome,telefone,email)&order=created_at.desc");renderAgenda()}catch(e){console.warn(e.message)}
+}
+function renderCliente(){
+ servico.innerHTML='<option value="">Selecione</option>'+servicos.map(s=>`<option value="${s.id}">${s.nome} — R$${money(s.valor)} — ${tempo(s.tempo_minutos)}</option>`).join("");
+ extras.innerHTML="";
+ adicionais.forEach(a=>{
+  const d=document.createElement("div");d.className="extra";d.innerHTML=`<div><strong>${a.nome}</strong><p class="muted">${a.descricao||""}</p></div><div><strong>R$${money(a.valor)}</strong><br><small>+${a.tempo_minutos}min</small></div><input type="checkbox" class="extraCheck" value="${a.id}">`;extras.appendChild(d);
+ });
+ document.querySelectorAll(".extraCheck").forEach(c=>c.onchange=calcular);
+ let usados=new Set();document.getElementById("horarios").innerHTML="";
+ const horariosBox=document.getElementById("horarios");
+ horariosBox.innerHTML="";
+ horariosDB.forEach(h=>{let hr=String(h.horario).slice(0,5);if(usados.has(hr))return;usados.add(hr);let b=document.createElement("button");b.className="hour";b.textContent=hr;b.onclick=()=>{document.querySelectorAll(".hour").forEach(x=>x.classList.remove("active"));b.classList.add("active");horaSel=hr};horariosBox.appendChild(b)});
+ calcular();
+}
+function calcular(){
+ servicoAtual=servicos.find(s=>s.id===servico.value)||null;valorTotal=servicoAtual?Number(servicoAtual.valor):0;tempoTotal=servicoAtual?Number(servicoAtual.tempo_minutos):0;extrasSel=[];
+ document.querySelectorAll(".extraCheck").forEach(c=>{if(c.checked){let a=adicionais.find(x=>x.id===c.value);if(a){extrasSel.push(a);valorTotal+=Number(a.valor);tempoTotal+=Number(a.tempo_minutos)}}});
+ summary.innerHTML=`Valor total: R$${money(valorTotal)}<br>Tempo estimado: ${tempo(tempoTotal)}`;
+}
+async function confirmarAg(){
+ if(!nome.value||!nascimento.value||!telefone.value||!email.value)return alert("Preencha o cadastro.");
+ if(!servicoAtual)return alert("Escolha um serviço.");
+ if(!data.value)return alert("Escolha a data.");
+ if(!horaSel)return alert("Escolha um horário.");
+ try{
+  let cli=await api("clientes?select=*&telefone=eq."+encodeURIComponent(telefone.value.trim())+"&limit=1");
+  let cliente_id=cli.length?cli[0].id:(await api("clientes",{method:"POST",body:JSON.stringify({nome:nome.value.trim(),nascimento:nascimento.value,telefone:telefone.value.trim(),email:email.value.trim()})}))[0].id;
+  await api("agendamentos",{method:"POST",body:JSON.stringify({cliente_id,servico_id:servicoAtual.id,data_agendamento:data.value,horario:horaSel,adicionais:extrasSel.map(e=>({id:e.id,nome:e.nome,valor:Number(e.valor),tempo_minutos:Number(e.tempo_minutos)})),valor_total:valorTotal,tempo_total_minutos:tempoTotal,status:"novo"})});
+  ok.style.display="block";ok.innerHTML="Agendamento solicitado com sucesso!<br>O Studio recebeu no painel interno.";
+  nome.value=nascimento.value=telefone.value=email.value=data.value="";horaSel="";document.querySelectorAll(".hour").forEach(b=>b.classList.remove("active"));
+  await carregarAgenda();alert("Agendamento salvo no Supabase.");
+ }catch(e){alert("Erro ao salvar: "+e.message)}
+}
+function logar(){if(user.value.trim()===loginData.user&&pass.value.trim()===loginData.pass){loginBox.style.display="none";dashboard.style.display="block";carregarAgenda()}else alert("Usuário ou senha incorretos.")}
+function sair(){loginBox.style.display="block";dashboard.style.display="none"}
+function renderAgenda(){
+ qtd.textContent=agendamentos.length;previsto.textContent="R$"+agendamentos.reduce((s,a)=>s+Number(a.valor_total||0),0).toFixed(0);
+ lista.innerHTML=agendamentos.length?"":"<p class='muted'>Nenhum agendamento encontrado.</p>";
+ agendamentos.forEach(a=>{let c=a.clientes||{},s=servicos.find(x=>x.id===a.servico_id);let d=document.createElement("div");d.className="item";d.innerHTML=`<strong>${c.nome||"Cliente"}</strong><br>Serviço: ${s?s.nome:"Serviço"}<br>Data: ${a.data_agendamento} às ${String(a.horario).slice(0,5)}<br>Tempo: ${tempo(a.tempo_total_minutos)}<br>Valor: R$${money(a.valor_total)}<br>WhatsApp: ${c.telefone||""}<br><span class="badge">${a.status}</span><div class="actions"><button class="btn success small">Confirmar</button><button class="btn danger small">Cancelar</button></div>`;d.querySelector(".success").onclick=()=>statusAg(a.id,"confirmado");d.querySelector(".danger").onclick=()=>statusAg(a.id,"cancelado");lista.appendChild(d)})
+}
+async function statusAg(id,status){await api("agendamentos?id=eq."+id,{method:"PATCH",body:JSON.stringify({status})});await carregarAgenda()}
+function renderInterno(){renderServicos();renderExtras();configUser.value=loginData.user;configPass.value=loginData.pass}
+function renderServicos(){listaServicos.innerHTML="";servicos.forEach(s=>{let d=document.createElement("div");d.className="item";d.innerHTML=`<strong>${s.nome}</strong><br>R$${money(s.valor)} • ${tempo(s.tempo_minutos)}<br><span class="muted">${s.descricao||""}</span><div class="actions"><button class="btn soft small">Editar</button><button class="btn danger small">Excluir</button></div>`;d.querySelector(".soft").onclick=()=>editarServico(s);d.querySelector(".danger").onclick=()=>desativar("servicos",s.id);listaServicos.appendChild(d)})}
+async function salvarSrv(){if(!srvNome.value||!srvValor.value||!srvTempo.value)return alert("Preencha tudo.");await api("servicos",{method:"POST",body:JSON.stringify({nome:srvNome.value,valor:Number(srvValor.value),tempo_minutos:Number(srvTempo.value),descricao:srvDesc.value,ativo:true})});srvNome.value=srvValor.value=srvTempo.value=srvDesc.value="";await carregar()}
+async function editarServico(s){let nome=prompt("Nome",s.nome);if(nome===null)return;let valor=prompt("Valor",s.valor);if(valor===null)return;let tempoMin=prompt("Tempo",s.tempo_minutos);if(tempoMin===null)return;let descricao=prompt("Descrição",s.descricao||"");if(descricao===null)return;await api("servicos?id=eq."+s.id,{method:"PATCH",body:JSON.stringify({nome,valor:Number(valor),tempo_minutos:Number(tempoMin),descricao})});await carregar()}
+function renderExtras(){listaExtras.innerHTML="";adicionais.forEach(a=>{let d=document.createElement("div");d.className="item";d.innerHTML=`<strong>${a.nome}</strong><br>R$${money(a.valor)} • +${a.tempo_minutos}min<br><span class="muted">${a.descricao||""}</span><div class="actions"><button class="btn soft small">Editar</button><button class="btn danger small">Excluir</button></div>`;d.querySelector(".soft").onclick=()=>editarExtra(a);d.querySelector(".danger").onclick=()=>desativar("adicionais",a.id);listaExtras.appendChild(d)})}
+async function salvarAdd(){if(!addNome.value||!addValor.value||!addTempo.value)return alert("Preencha tudo.");await api("adicionais",{method:"POST",body:JSON.stringify({nome:addNome.value,valor:Number(addValor.value),tempo_minutos:Number(addTempo.value),descricao:addDesc.value,ativo:true})});addNome.value=addValor.value=addTempo.value=addDesc.value="";await carregar()}
+async function editarExtra(a){let nome=prompt("Nome",a.nome);if(nome===null)return;let valor=prompt("Valor",a.valor);if(valor===null)return;let tempoMin=prompt("Tempo",a.tempo_minutos);if(tempoMin===null)return;let descricao=prompt("Descrição",a.descricao||"");if(descricao===null)return;await api("adicionais?id=eq."+a.id,{method:"PATCH",body:JSON.stringify({nome,valor:Number(valor),tempo_minutos:Number(tempoMin),descricao})});await carregar()}
+async function desativar(t,id){if(!confirm("Excluir/desativar?"))return;await api(t+"?id=eq."+id,{method:"PATCH",body:JSON.stringify({ativo:false})});await carregar()}
+function salvarConfigLocal(){loginData={user:configUser.value||"admin",pass:configPass.value||"0000"};localStorage.setItem("studio_sabrina_login",JSON.stringify(loginData));alert("Salvo neste navegador.")}
+function mudarTab(id){document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));document.querySelector(`[data-tab="${id}"]`).classList.add("active");document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function wpp(){window.open("https://wa.me/"+WPP,"_blank")}function maps(){window.open("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent("R. Jailson Francisco de Miranda, 95, CEP 88341-173"),"_blank")}
+menuBtn.onclick=abrirMenu;overlay.onclick=abrirMenu;wppMenu.onclick=wpp;mapsMenu.onclick=maps;mapsHome.onclick=maps;float.onclick=wpp;confirmar.onclick=confirmarAg;login.onclick=logar;logout.onclick=sair;atualizar.onclick=carregarAgenda;salvarServico.onclick=salvarSrv;salvarExtra.onclick=salvarAdd;salvarConfig.onclick=salvarConfigLocal;servico.onchange=calcular;
+document.querySelectorAll("[data-screen]").forEach(b=>b.onclick=()=>tela(b.dataset.screen));document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>mudarTab(b.dataset.tab));
+carregar();
+</script>
+</body>
+</html>
