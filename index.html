@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio Sabrina Wiloski - V3</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --white:#ffffff;
+      --ivory:#fffdf7;
+      --cream:#fbf4e4;
+      --gold:#c79a36;
+      --gold-dark:#8a651d;
+      --gold-light:#f3d98d;
+      --text:#251f17;
+      --muted:#7b6f5e;
+      --line:#eadbb9;
+      --shadow:0 14px 35px rgba(80,58,20,.12);
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:'Montserrat', Arial, sans-serif;
+    }
+
+    body{
+      background:
+        radial-gradient(circle at top left, rgba(243,217,141,.35), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(199,154,54,.15), transparent 34%),
+        linear-gradient(180deg, #fff, var(--ivory));
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    .app{
+      max-width:520px;
+      margin:auto;
+      min-height:100vh;
+      background:rgba(255,255,255,.72);
+      position:relative;
+      overflow:hidden;
+    }
+
+    header{
+      background:
+        linear-gradient(135deg, #fff, #fffaf0 45%, #f7e7bc);
+      color:var(--text);
+      padding:18px 18px 24px;
+      border-radius:0 0 34px 34px;
+      box-shadow:var(--shadow);
+      position:sticky;
+      top:0;
+      z-index:10;
+      border-bottom:1px solid rgba(199,154,54,.28);
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .menu-btn{
+      width:44px;
+      height:44px;
+      border:1px solid rgba(199,154,54,.45);
+      border-radius:16px;
+      background:linear-gradient(135deg,#fff,#fbefd0);
+      color:var(--gold-dark);
+      font-size:25px;
+      cursor:pointer;
+      box-shadow:0 8px 18px rgba(138,101,29,.12);
+    }
+
+    .brand h1{
+      font-family:'Great Vibes', cursive;
+      font-size:34px;
+      line-height:1;
+      font-weight:400;
+      color:var(--gold-dark);
+      text-shadow:0 2px 0 #fff;
+    }
+
+    .brand p{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+      letter-spacing:.8px;
+      text-transform:uppercase;
+      font-weight:600;
+    }
+
+    .status-pill{
+      margin-top:18px;
+      background:rgba(255,255,255,.72);
+      border:1px solid rgba(199,154,54,.35);
+      padding:12px;
+      border-radius:20px;
+      font-size:13px;
+      color:var(--gold-dark);
+      font-weight:600;
+    }
+
+    .drawer{
+      position:fixed;
+      left:-292px;
+      top:0;
+      width:282px;
+      height:100vh;
+      background:linear-gradient(180deg,#fff,#fffaf0);
+      z-index:30;
+      box-shadow:10px 0 35px rgba(0,0,0,.16);
+      padding:24px;
+      transition:.28s;
+      border-right:1px solid rgba(199,154,54,.28);
+    }
+
+    .drawer.open{left:0}
+
+    .drawer h2{
+      font-family:'Great Vibes', cursive;
+      font-size:38px;
+      color:var(--gold-dark);
+      font-weight:400;
+    }
+
+    .drawer small{
+      color:var(--muted);
+      display:block;
+      margin:4px 0 24px;
+      text-transform:uppercase;
+      letter-spacing:.8px;
+      font-size:11px;
+      font-weight:700;
+    }
+
+    .drawer button{
+      width:100%;
+      border:1px solid rgba(199,154,54,.25);
+      background:white;
+      color:var(--gold-dark);
+      padding:14px;
+      border-radius:17px;
+      margin-bottom:10px;
+      text-align:left;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 6px 16px rgba(80,58,20,.06);
+    }
+
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.25);
+      z-index:25;
+      display:none;
+    }
+
+    .overlay.show{display:block}
+
+    main{
+      padding:20px;
+      padding-bottom:35px;
+    }
+
+    .screen{
+      display:none;
+      animation:show .25s ease;
+    }
+
+    .screen.active{display:block}
+
+    @keyframes show{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .hero{
+      background:linear-gradient(180deg,#fff,#fffaf0);
+      padding:26px 22px;
+      border-radius:32px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(199,154,54,.25);
+      text-align:center;
+      margin-bottom:18px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero:before{
+      content:"";
+      position:absolute;
+      inset:12px;
+      border:1px solid rgba(199,154,54,.22);
+      border-radius:26px;
+      pointer-events:none;
+    }
+
+    .hero .icon{
+      width:78px;
+      height:78px;
+      border-radius:28px;
+      background:linear-gradient(135deg,#fff,#f7df9d,#c79a36);
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin:0 auto 15px;
+      font-size:34px;
+      box-shadow:0 12px 28px rgba(199,154,54,.25);
+      border:1px solid rgba(138,101,29,.16);
+      position:relative;
+      z-index:1;
+    }
+
+    .hero h2{
+      font-family:'Great Vibes', cursive;
+      font-size:42px;
+      color:var(--gold-dark);
+      font-weight:400;
+      margin-bottom:4px;
+      position:relative;
+      z-index:1;
+    }
+
+    .hero p{
+      color:var(--muted);
+      line-height:1.55;
+      font-size:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .card{
+      background:rgba(255,255,255,.94);
+      border:1px solid rgba(199,154,54,.22);
+      border-radius:26px;
+      padding:18px;
+      margin-bottom:16px;
+      box-shadow:0 10px 28px rgba(80,58,20,.08);
+    }
+
+    .card h3{
+      color:var(--gold-dark);
+      margin-bottom:14px;
+      font-size:17px;
+      letter-spacing:.2px;
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    label{
+      font-size:12px;
+      color:var(--gold-dark);
+      font-weight:800;
+      display:block;
+      margin-bottom:6px;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+
+    input, select, textarea{
+      width:100%;
+      padding:14px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      outline:none;
+      background:white;
+      font-size:14px;
+      margin-bottom:12px;
+      color:var(--text);
+    }
+
+    input:focus, select:focus{
+      border-color:var(--gold);
+      box-shadow:0 0 0 3px rgba(199,154,54,.12);
+    }
+
+    .btn{
+      width:100%;
+      border:0;
+      border-radius:18px;
+      padding:15px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+      margin-top:8px;
+      letter-spacing:.3px;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#b58522,#f1d486,#9b741f);
+      color:white;
+      box-shadow:0 10px 22px rgba(199,154,54,.30);
+      text-shadow:0 1px 1px rgba(0,0,0,.18);
+    }
+
+    .btn-soft{
+      background:#fffaf0;
+      color:var(--gold-dark);
+      border:1px solid rgba(199,154,54,.28);
+    }
+
+    .service-box{
+      border:1px solid rgba(199,154,54,.22);
+      border-radius:21px;
+      padding:14px;
+      background:#fffdf8;
+      margin-bottom:10px;
+    }
+
+    .service-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .muted{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:4px;
+      line-height:1.4;
+    }
+
+    .extra{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      background:linear-gradient(180deg,#fff,#fffaf0);
+      border:1px solid rgba(199,154,54,.25);
+      padding:13px;
+      border-radius:18px;
+      margin-bottom:10px;
+    }
+
+    .extra input{
+      width:22px;
+      height:22px;
+      margin:0;
+      accent-color:var(--gold);
+    }
+
+    .summary{
+      background:linear-gradient(135deg,#fffaf0,#fff);
+      border:1px solid rgba(199,154,54,.30);
+      border-radius:21px;
+      padding:16px;
+      margin-top:12px;
+      color:var(--gold-dark);
+      font-weight:900;
+      line-height:1.8;
+    }
+
+    .days,.hours{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:9px;
+      margin-bottom:12px;
+    }
+
+    .day,.hour{
+      border:1px solid rgba(199,154,54,.30);
+      background:white;
+      color:var(--gold-dark);
+      padding:12px 8px;
+      border-radius:16px;
+      font-weight:900;
+      cursor:pointer;
+      text-align:center;
+    }
+
+    .day.active,.hour.active{
+      background:linear-gradient(135deg,#b58522,#f1d486,#9b741f);
+      color:white;
+      border-color:transparent;
+    }
+
+    .notice{
+      background:#fffaf0;
+      border:1px solid rgba(199,154,54,.30);
+      color:var(--gold-dark);
+      padding:13px;
+      border-radius:18px;
+      font-size:13px;
+      line-height:1.4;
+      margin-top:12px;
+      font-weight:600;
+    }
+
+    .lock{
+      width:68px;
+      height:68px;
+      border-radius:25px;
+      margin:0 auto 10px;
+      background:linear-gradient(135deg,#fff,#f1d486,#9b741f);
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      box-shadow:0 10px 22px rgba(199,154,54,.25);
+    }
+
+    .login-logo{text-align:center;margin-bottom:16px}
+
+    .dash{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .metric{
+      background:#fffaf0;
+      padding:14px;
+      border-radius:19px;
+      color:var(--gold-dark);
+      border:1px solid rgba(199,154,54,.24);
+    }
+
+    .metric strong{
+      display:block;
+      font-size:22px;
+      margin-top:4px;
+    }
+
+    .appt{
+      border-left:4px solid var(--gold);
+      background:#fffdf8;
+      padding:14px;
+      border-radius:16px;
+      margin-bottom:10px;
+      font-size:14px;
+      line-height:1.5;
+    }
+
+    .footer{
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+      padding:10px 0 22px;
+      font-weight:600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <div class="topbar">
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+        <div class="brand">
+          <h1>Studio Sabrina Wiloski</h1>
+          <p>Agenda premium online</p>
+        </div>
+      </div>
+      <div class="status-pill">
+        ✨ Atendimento exclusivo • Agendamento pelo link da bio
+      </div>
+    </header>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <aside class="drawer" id="drawer">
+      <h2>Studio Sabrina</h2>
+      <small>Menu do aplicativo</small>
+      <button onclick="showScreen('home')">🏠 Início</button>
+      <button onclick="showScreen('client')">💅 Acesso Cliente</button>
+      <button onclick="showScreen('internal')">🔒 Acesso Interno</button>
+      <button onclick="openWhatsapp()">📲 WhatsApp</button>
+    </aside>
+
+    <main>
+      <section class="screen active" id="home">
+        <div class="hero">
+          <div class="icon">💅</div>
+          <h2>Agende seu horário</h2>
+          <p>Escolha seu procedimento, veja o valor final com adicionais e solicite seu atendimento diretamente pelo aplicativo.</p>
+          <button class="btn btn-primary" onclick="showScreen('client')">Agendar agora</button>
+          <button class="btn btn-soft" onclick="showScreen('internal')">Acesso interno</button>
+        </div>
+
+        <div class="card">
+          <h3>Experiência de agendamento</h3>
+          <div class="service-box">
+            <div class="service-head">
+              <strong>Cadastro simples</strong>
+              <span>👤</span>
+            </div>
+            <p class="muted">Nome, nascimento, telefone e e-mail para manter o histórico da cliente.</p>
+          </div>
+          <div class="service-box">
+            <div class="service-head">
+              <strong>Serviço + adicionais</strong>
+              <span>✨</span>
+            </div>
+            <p class="muted">O app calcula automaticamente valor e tempo total do atendimento.</p>
+          </div>
+          <div class="service-box">
+            <div class="service-head">
+              <strong>Confirmação no WhatsApp</strong>
+              <span>📲</span>
+            </div>
+            <p class="muted">Depois de confirmar, o app abre uma mensagem pronta para o WhatsApp do Studio.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="client">
+        <div class="card">
+          <h3>Cadastro da cliente</h3>
+          <label>Nome completo</label>
+          <input id="nome" placeholder="Ex: Maria Silva">
+
+          <div class="grid2">
+            <div>
+              <label>Nascimento</label>
+              <input id="nascimento" type="date">
+            </div>
+            <div>
+              <label>WhatsApp</label>
+              <input id="telefone" placeholder="47 99999-9999">
+            </div>
+          </div>
+
+          <label>E-mail</label>
+          <input id="email" type="email" placeholder="cliente@email.com">
+        </div>
+
+        <div class="card">
+          <h3>Escolha o serviço</h3>
+
+          <label>Serviço principal</label>
+          <select id="servico" onchange="calcular()">
+            <option value="0|0|Selecione um serviço">Selecione um serviço</option>
+            <option value="95|90|Esmaltação em gel">Esmaltação em gel — R$95,00 — 1h30</option>
+            <option value="120|120|Alongamento em gel">Alongamento em gel — R$120,00 — 2h</option>
+            <option value="80|75|Manutenção">Manutenção — R$80,00 — 1h15</option>
+            <option value="60|60|Banho de gel">Banho de gel — R$60,00 — 1h</option>
+          </select>
+
+          <h3 style="margin-top:12px;">Adicionais</h3>
+
+          <div class="extra">
+            <div>
+              <strong>Decoração</strong>
+              <p class="muted">O par da decoração</p>
+            </div>
+            <div>
+              <strong>R$12</strong><br>
+              <small>+10min</small>
+            </div>
+            <input type="checkbox" class="extraCheck" value="12|10|Decoração" onchange="calcular()">
+          </div>
+
+          <div class="extra">
+            <div>
+              <strong>Francesinha</strong>
+              <p class="muted">Acabamento delicado</p>
+            </div>
+            <div>
+              <strong>R$15</strong><br>
+              <small>+15min</small>
+            </div>
+            <input type="checkbox" class="extraCheck" value="15|15|Francesinha" onchange="calcular()">
+          </div>
+
+          <div class="extra">
+            <div>
+              <strong>Blindagem</strong>
+              <p class="muted">Mais resistência e brilho</p>
+            </div>
+            <div>
+              <strong>R$20</strong><br>
+              <small>+20min</small>
+            </div>
+            <input type="checkbox" class="extraCheck" value="20|20|Blindagem" onchange="calcular()">
+          </div>
+
+          <div class="summary" id="summary">
+            Valor total: R$0,00<br>
+            Tempo estimado: 0min
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Escolha uma data</h3>
+          <div class="days">
+            <button class="day" onclick="pickDay(this,'Segunda-feira')">Seg</button>
+            <button class="day" onclick="pickDay(this,'Terça-feira')">Ter</button>
+            <button class="day" onclick="pickDay(this,'Quarta-feira')">Qua</button>
+            <button class="day" onclick="pickDay(this,'Quinta-feira')">Qui</button>
+            <button class="day" onclick="pickDay(this,'Sexta-feira')">Sex</button>
+            <button class="day" onclick="pickDay(this,'Sábado')">Sáb</button>
+          </div>
+
+          <label>Ou escolha uma data específica</label>
+          <input id="data" type="date">
+
+          <h3 style="margin-top:12px;">Horários disponíveis</h3>
+          <div class="hours">
+            <button class="hour" onclick="pickHour(this,'09:00')">09:00</button>
+            <button class="hour" onclick="pickHour(this,'10:30')">10:30</button>
+            <button class="hour" onclick="pickHour(this,'13:30')">13:30</button>
+            <button class="hour" onclick="pickHour(this,'15:00')">15:00</button>
+            <button class="hour" onclick="pickHour(this,'16:30')">16:30</button>
+            <button class="hour" onclick="pickHour(this,'18:00')">18:00</button>
+          </div>
+
+          <div class="notice">
+            Para cancelar ou reagendar, entre em contato diretamente com o Studio pelo WhatsApp.
+          </div>
+
+          <button class="btn btn-primary" onclick="confirmar()">Confirmar agendamento</button>
+        </div>
+      </section>
+
+      <section class="screen" id="internal">
+        <div class="card" id="loginBox">
+          <div class="login-logo">
+            <div class="lock">🔒</div>
+            <h3>Acesso interno</h3>
+            <p class="muted">Área exclusiva do Studio Sabrina Wiloski.</p>
+          </div>
+
+          <label>Usuário</label>
+          <input id="user" placeholder="admin">
+
+          <label>Senha</label>
+          <input id="pass" type="password" placeholder="0000">
+
+          <button class="btn btn-primary" onclick="login()">Entrar</button>
+        </div>
+
+        <div class="card" id="dashboard" style="display:none;">
+          <h3>Painel interno</h3>
+
+          <div class="dash">
+            <div class="metric">
+              Agendamentos
+              <strong id="mQtd">0</strong>
+            </div>
+            <div class="metric">
+              Previsto
+              <strong id="mValor">R$0</strong>
+            </div>
+          </div>
+
+          <button class="btn btn-soft">📅 Editar dias disponíveis</button>
+          <button class="btn btn-soft">⏰ Editar horários</button>
+          <button class="btn btn-soft">💅 Cadastrar serviços</button>
+          <button class="btn btn-soft">🚫 Bloquear data/horário</button>
+
+          <h3 style="margin-top:18px;">Últimos agendamentos</h3>
+          <div id="lista">
+            <p class="muted">Nenhum agendamento confirmado nesta sessão.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer">Studio Sabrina Wiloski © 2026</div>
+  </div>
+
+  <script>
+    const whatsappStudio = "5547999999999";
+
+    let valorTotal = 0;
+    let tempoTotal = 0;
+    let servicoNome = "";
+    let extras = [];
+    let diaSelecionado = "";
+    let horarioSelecionado = "";
+    let agendamentos = [];
+
+    function toggleMenu(){
+      document.getElementById("drawer").classList.toggle("open");
+      document.getElementById("overlay").classList.toggle("show");
+    }
+
+    function closeMenu(){
+      document.getElementById("drawer").classList.remove("open");
+      document.getElementById("overlay").classList.remove("show");
+    }
+
+    function showScreen(id){
+      document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      closeMenu();
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    function calcular(){
+      const s = document.getElementById("servico").value.split("|");
+      valorTotal = Number(s[0]);
+      tempoTotal = Number(s[1]);
+      servicoNome = s[2];
+
+      extras = [];
+
+      document.querySelectorAll(".extraCheck").forEach(item => {
+        if(item.checked){
+          const e = item.value.split("|");
+          valorTotal += Number(e[0]);
+          tempoTotal += Number(e[1]);
+          extras.push(e[2]);
+        }
+      });
+
+      document.getElementById("summary").innerHTML = `
+        Valor total: R$${valorTotal.toFixed(2).replace(".", ",")}<br>
+        Tempo estimado: ${formatarTempo(tempoTotal)}
+      `;
+    }
+
+    function formatarTempo(min){
+      const h = Math.floor(min / 60);
+      const m = min % 60;
+
+      if(h > 0 && m > 0) return `${h}h${m}min`;
+      if(h > 0) return `${h}h`;
+      return `${m}min`;
+    }
+
+    function pickDay(btn, dia){
+      document.querySelectorAll(".day").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      diaSelecionado = dia;
+    }
+
+    function pickHour(btn, hora){
+      document.querySelectorAll(".hour").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      horarioSelecionado = hora;
+    }
+
+    function confirmar(){
+      const nome = document.getElementById("nome").value.trim();
+      const nascimento = document.getElementById("nascimento").value;
+      const telefone = document.getElementById("telefone").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const data = document.getElementById("data").value;
+
+      if(!nome || !nascimento || !telefone || !email){
+        alert("Preencha o cadastro da cliente.");
+        return;
+      }
+
+      if(!servicoNome || servicoNome === "Selecione um serviço"){
+        alert("Escolha um serviço.");
+        return;
+      }
+
+      if(!data && !diaSelecionado){
+        alert("Escolha uma data ou dia da semana.");
+        return;
+      }
+
+      if(!horarioSelecionado){
+        alert("Escolha um horário.");
+        return;
+      }
+
+      const agendamento = {
+        nome,
+        nascimento,
+        telefone,
+        email,
+        servico: servicoNome,
+        extras: extras.length ? extras.join(", ") : "Nenhum",
+        data: data || diaSelecionado,
+        horario: horarioSelecionado,
+        valor: valorTotal,
+        tempo: formatarTempo(tempoTotal)
+      };
+
+      agendamentos.unshift(agendamento);
+      atualizarDashboard();
+
+      const msg = `
+Novo agendamento ✨💅
+
+Studio Sabrina Wiloski
+
+Cliente: ${agendamento.nome}
+Nascimento: ${agendamento.nascimento}
+WhatsApp: ${agendamento.telefone}
+E-mail: ${agendamento.email}
+
+Serviço: ${agendamento.servico}
+Adicionais: ${agendamento.extras}
+
+Data/Dia: ${agendamento.data}
+Horário: ${agendamento.horario}
+Tempo estimado: ${agendamento.tempo}
+Valor total: R$${agendamento.valor.toFixed(2).replace(".", ",")}
+
+Status: Aguardando confirmação
+
+Observação:
+Para cancelar ou reagendar, a cliente deve entrar em contato com o Studio.
+      `;
+
+      alert("Agendamento criado! O WhatsApp será aberto com a mensagem pronta para enviar ao Studio.");
+      window.open(`https://wa.me/${whatsappStudio}?text=${encodeURIComponent(msg)}`, "_blank");
+    }
+
+    function login(){
+      const user = document.getElementById("user").value.trim();
+      const pass = document.getElementById("pass").value.trim();
+
+      if(user === "admin" && pass === "0000"){
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+      }else{
+        alert("Usuário ou senha incorretos.");
+      }
+    }
+
+    function atualizarDashboard(){
+      document.getElementById("mQtd").innerText = agendamentos.length;
+      const total = agendamentos.reduce((s,a)=>s+a.valor,0);
+      document.getElementById("mValor").innerText = "R$" + total.toFixed(0);
+
+      const lista = document.getElementById("lista");
+      if(agendamentos.length === 0){
+        lista.innerHTML = '<p class="muted">Nenhum agendamento confirmado nesta sessão.</p>';
+        return;
+      }
+
+      lista.innerHTML = "";
+      agendamentos.forEach(a => {
+        lista.innerHTML += `
+          <div class="appt">
+            <strong>${a.nome}</strong><br>
+            ${a.servico}<br>
+            Adicionais: ${a.extras}<br>
+            ${a.data} às ${a.horario}<br>
+            Tempo: ${a.tempo}<br>
+            Valor: R$${a.valor.toFixed(2).replace(".", ",")}<br>
+            WhatsApp: ${a.telefone}
+          </div>
+        `;
+      });
+    }
+
+    function openWhatsapp(){
+      window.open(`https://wa.me/${whatsappStudio}`, "_blank");
+    }
+
+    calcular();
+  </script>
+</body>
+</html>
