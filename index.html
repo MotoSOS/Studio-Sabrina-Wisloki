@@ -2132,6 +2132,67 @@
       { id: 0, nome: "Domingo", inicio: "09:00", fim: "13:00" }
     ];
 
+    const ADICIONAIS_COMO_SERVICO = ["remocao", "manutencao"];
+
+    function normalizarNomeCategoria(valor) {
+      return String(valor ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+    }
+
+    function adicionalDeveVirarServico(item) {
+      const nome = normalizarNomeCategoria(item?.nome);
+      return ADICIONAIS_COMO_SERVICO.some(alvo => nome.includes(alvo));
+    }
+
+    function servicoJaExisteParaAdicional(adicional) {
+      const nomeAdicional = normalizarNomeCategoria(adicional?.nome);
+
+      return servicos.some(servico =>
+        adicionalDeveVirarServico(servico) &&
+        normalizarNomeCategoria(servico.nome) === nomeAdicional
+      );
+    }
+
+    function adicionaisComoServicos() {
+      return adicionais
+        .filter(adicional =>
+          adicionalDeveVirarServico(adicional) &&
+          !servicoJaExisteParaAdicional(adicional)
+        )
+        .map(adicional => ({
+          ...adicional,
+          _origemServico: "adicional"
+        }));
+    }
+
+    function adicionaisVisiveis() {
+      return adicionais.filter(adicional => !adicionalDeveVirarServico(adicional));
+    }
+
+    function servicosDisponiveis() {
+      return [
+        ...servicos.map(servico => ({
+          ...servico,
+          _origemServico: "servico"
+        })),
+        ...adicionaisComoServicos()
+      ];
+    }
+
+    function chaveSelecaoServico(item) {
+      return `${item?._origemServico || "servico"}:${item?.id ?? ""}`;
+    }
+
+    function servicoPrincipalParaSalvar() {
+      return servicosSel.find(item => item._origemServico !== "adicional") ||
+        servicos[0] ||
+        servicosSel[0] ||
+        null;
+    }
+
     let sessaoInternaToken =
       sessionStorage.getItem("studio_sabrina_sessao") || "";
 
@@ -2260,9 +2321,11 @@
         tempo_minutos: Number(item.tempo_minutos || 0)
       }));
 
+      const servicoPrincipal = servicoPrincipalParaSalvar();
+
       const baseCompleta = {
         cliente_id: clienteId,
-        servico_id: servicosSel[0].id,
+        servico_id: servicoPrincipal?.id || null,
         data_agendamento: data,
         horario: horaNormalizada,
         status: "novo",
@@ -2286,7 +2349,7 @@
 
       const minimo = {
         cliente_id: clienteId,
-        servico_id: servicosSel[0].id,
+        servico_id: servicoPrincipal?.id || null,
         data_agendamento: data,
         horario: horaNormalizada,
         status: "novo",
@@ -3570,7 +3633,7 @@
 
       servicosBox.innerHTML = "";
 
-      servicos.forEach(servico => {
+      servicosDisponiveis().forEach(servico => {
         const item = document.createElement("label");
         item.className = "service-option";
 
@@ -3597,7 +3660,7 @@
           <input
             type="checkbox"
             class="serviceCheck"
-            value="${servico.id}"
+            value="${escapeHTML(chaveSelecaoServico(servico))}"
           >
         `;
 
@@ -3634,7 +3697,7 @@
       const extrasBox = document.getElementById("extras");
       extrasBox.innerHTML = "";
 
-      adicionais.forEach(adicional => {
+      adicionaisVisiveis().forEach(adicional => {
         const item = document.createElement("div");
         item.className = "extra";
         item.innerHTML = `
@@ -3678,11 +3741,13 @@
       valorTotal = 0;
       tempoTotal = 0;
 
+      const servicosOpcoes = servicosDisponiveis();
+
       document.querySelectorAll(".serviceCheck").forEach(campo => {
         if (!campo.checked) return;
 
         const servico =
-          servicos.find(item => item.id === campo.value);
+          servicosOpcoes.find(item => chaveSelecaoServico(item) === campo.value);
 
         if (servico) {
           servicosSel.push(servico);
@@ -3699,7 +3764,7 @@
         if (!campo.checked) return;
 
         const adicional =
-          adicionais.find(item => item.id === campo.value);
+          adicionaisVisiveis().find(item => item.id === campo.value);
 
         if (adicional) {
           extrasSel.push(adicional);
@@ -4564,11 +4629,16 @@
 
       lista.innerHTML = "";
 
-      servicos.forEach(servico => {
+      servicosDisponiveis().forEach(servico => {
         const item = document.createElement("div");
         item.className = "item";
 
-        if (editandoServicoId === servico.id) {
+        const chaveEdicaoServico = chaveSelecaoServico(servico);
+        const tabelaServico = servico._origemServico === "adicional"
+          ? "adicionais"
+          : "servicos";
+
+        if (editandoServicoId === chaveEdicaoServico) {
           item.innerHTML = `
             <strong>Editando serviço</strong>
 
@@ -4613,7 +4683,7 @@
           `;
 
           item.querySelector(".salvar-edicao").onclick =
-            () => salvarEdicaoServico(servico.id, item);
+            () => salvarEdicaoServico(servico.id, item, tabelaServico);
 
           item.querySelector(".cancelar-edicao").onclick = () => {
             editandoServicoId = null;
@@ -4643,7 +4713,7 @@
           `;
 
           item.querySelector(".editar-servico").onclick = () => {
-            editandoServicoId = servico.id;
+            editandoServicoId = chaveEdicaoServico;
             renderServicos();
 
             requestAnimationFrame(() =>
@@ -4652,7 +4722,7 @@
           };
 
           item.querySelector(".excluir-servico").onclick =
-            () => desativar("servicos", servico.id);
+            () => desativar(tabelaServico, servico.id);
         }
 
         lista.appendChild(item);
@@ -4696,7 +4766,7 @@
       await carregar();
     }
 
-    async function salvarEdicaoServico(id, item) {
+    async function salvarEdicaoServico(id, item, tabela = "servicos") {
       const nome =
         item.querySelector(".editSrvNome").value.trim();
 
@@ -4729,15 +4799,20 @@
         botao.disabled = true;
         botao.textContent = "Salvando...";
 
-        await api("servicos?id=eq." + id, {
+        const dados = {
+          nome,
+          valor,
+          tempo_minutos: tempoMin,
+          descricao
+        };
+
+        if (tabela === "servicos") {
+          dados.detalhes = detalhes;
+        }
+
+        await api(tabela + "?id=eq." + id, {
           method: "PATCH",
-          body: JSON.stringify({
-            nome,
-            valor,
-            tempo_minutos: tempoMin,
-            descricao,
-            detalhes
-          })
+          body: JSON.stringify(dados)
         });
 
         editandoServicoId = null;
@@ -4754,7 +4829,7 @@
 
       lista.innerHTML = "";
 
-      adicionais.forEach(adicional => {
+      adicionaisVisiveis().forEach(adicional => {
         const item = document.createElement("div");
         item.className = "item";
 
