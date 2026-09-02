@@ -1869,6 +1869,9 @@
               ></textarea>
 
               <button class="btn btn-primary" id="salvarServico">Salvar serviço</button>
+              <button class="btn btn-soft" id="cancelarEdicaoServico" style="display:none">
+                Cancelar edição
+              </button>
 
               <h3 class="top-space">Procedimentos cadastrados</h3>
               <p class="muted">
@@ -1890,6 +1893,9 @@
               <input id="addDesc" placeholder="Descrição curta">
 
               <button class="btn btn-primary" id="salvarExtra">Salvar adicional</button>
+              <button class="btn btn-soft" id="cancelarEdicaoExtra" style="display:none">
+                Cancelar edição
+              </button>
 
               <h3 class="top-space">Adicionais cadastrados</h3>
               <p class="muted">
@@ -2049,7 +2055,7 @@
     <footer>
       Studio Sabrina Wiloski © 2026<br>
       R. Jailson Francisco de Miranda, 95 • CEP 88341-173<br>
-      <strong id="appVersion">Versão 7.7</strong>
+      <strong id="appVersion">Versão 7.8</strong>
     </footer>
   </div>
 
@@ -2126,6 +2132,7 @@
     let tempoTotal = 0;
 
     let editandoServicoId = null;
+    let editandoServicoTabela = "servicos";
     let editandoExtraId = null;
     let editandoAgendamentoId = null;
     let dataAgendaSelecionada = null;
@@ -2194,6 +2201,22 @@
 
     function chaveSelecaoServico(item) {
       return `${item?._origemServico || "servico"}:${item?.id ?? ""}`;
+    }
+
+    function partesDaDuracao(tempoMinutos) {
+      const total = Math.max(0, Math.round(Number(tempoMinutos) || 0));
+
+      return {
+        horas: Math.floor(total / 60),
+        minutos: total % 60
+      };
+    }
+
+    function minutosDaDuracao(horas, minutos) {
+      const totalHoras = Math.max(0, Math.floor(Number(horas) || 0));
+      const totalMinutos = Math.max(0, Math.floor(Number(minutos) || 0));
+
+      return (totalHoras * 60) + totalMinutos;
     }
 
     function servicoPrincipalParaSalvar() {
@@ -4648,59 +4671,7 @@
           ? "adicionais"
           : "servicos";
 
-        if (editandoServicoId === chaveEdicaoServico) {
-          item.innerHTML = `
-            <strong>Editando serviço</strong>
-
-            <div class="inline-edit">
-              <label>Nome</label>
-              <input class="editSrvNome"
-                value="${escapeHTML(servico.nome)}">
-
-              <label>Valor</label>
-              <input class="editSrvValor" type="number" step="0.01"
-                value="${Number(servico.valor || 0)}">
-
-              <label>Duração do serviço</label>
-              <div class="duration-fields">
-                <div>
-                  <label>Horas</label>
-                  <input class="editSrvHoras" type="number" min="0" step="1"
-                    value="${partesDaDuracao(servico.tempo_minutos).horas}">
-                </div>
-                <div>
-                  <label>Minutos</label>
-                  <input class="editSrvMinutos" type="number" min="0" max="59" step="5"
-                    value="${partesDaDuracao(servico.tempo_minutos).minutos}">
-                </div>
-              </div>
-
-              <label>Descrição curta</label>
-              <textarea class="editSrvDesc">${escapeHTML(servico.descricao || "")}</textarea>
-
-              <label>Saiba mais sobre o procedimento</label>
-              <textarea class="editSrvDetalhes" rows="7">${escapeHTML(servico.detalhes || "")}</textarea>
-
-              <div class="inline-edit-actions">
-                <button class="btn btn-primary btn-small salvar-edicao">
-                  Salvar alterações
-                </button>
-                <button class="btn btn-soft btn-small cancelar-edicao">
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          `;
-
-          item.querySelector(".salvar-edicao").onclick =
-            () => salvarEdicaoServico(servico.id, item, tabelaServico);
-
-          item.querySelector(".cancelar-edicao").onclick = () => {
-            editandoServicoId = null;
-            renderServicos();
-          };
-        } else {
-          item.innerHTML = `
+        item.innerHTML = `
             <strong>${escapeHTML(servico.nome)}</strong><br>
             R$${money(servico.valor)} • ${tempo(servico.tempo_minutos)}<br>
             <span class="muted">${escapeHTML(servico.descricao || "")}</span>
@@ -4722,21 +4693,50 @@
             </div>
           `;
 
-          item.querySelector(".editar-servico").onclick = () => {
-            editandoServicoId = chaveEdicaoServico;
-            renderServicos();
+        item.querySelector(".editar-servico").onclick = () =>
+          iniciarEdicaoServico(servico, chaveEdicaoServico, tabelaServico);
 
-            requestAnimationFrame(() =>
-              document.querySelector(".editSrvNome")?.focus()
-            );
-          };
-
-          item.querySelector(".excluir-servico").onclick =
-            () => desativar(tabelaServico, servico.id);
-        }
+        item.querySelector(".excluir-servico").onclick =
+          () => desativar(tabelaServico, servico.id);
 
         lista.appendChild(item);
       });
+    }
+
+    function iniciarEdicaoServico(servico, chave, tabela) {
+      const duracao = partesDaDuracao(servico.tempo_minutos);
+
+      editandoServicoId = chave;
+      editandoServicoTabela = tabela;
+
+      document.getElementById("srvNome").value = servico.nome || "";
+      document.getElementById("srvValor").value = Number(servico.valor || 0);
+      document.getElementById("srvHoras").value = duracao.horas;
+      document.getElementById("srvMinutos").value = duracao.minutos;
+      document.getElementById("srvDesc").value = servico.descricao || "";
+      document.getElementById("srvDetalhes").value = servico.detalhes || "";
+
+      document.getElementById("salvarServico").textContent = "Salvar alterações";
+      document.getElementById("cancelarEdicaoServico").style.display = "block";
+
+      document.getElementById("srvNome").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }
+
+    function cancelarEdicaoServico() {
+      editandoServicoId = null;
+      editandoServicoTabela = "servicos";
+
+      document.getElementById("srvNome").value = "";
+      document.getElementById("srvValor").value = "";
+      document.getElementById("srvHoras").value = "0";
+      document.getElementById("srvMinutos").value = "0";
+      document.getElementById("srvDesc").value = "";
+      document.getElementById("srvDetalhes").value = "";
+      document.getElementById("salvarServico").textContent = "Salvar serviço";
+      document.getElementById("cancelarEdicaoServico").style.display = "none";
     }
 
     async function salvarSrv() {
@@ -4754,24 +4754,33 @@
         return;
       }
 
-      await api("servicos", {
-        method: "POST",
-        body: JSON.stringify({
-          nome,
-          valor,
-          tempo_minutos: tempoMin,
-          descricao,
-          detalhes,
-          ativo: true
-        })
-      });
+      if (editandoServicoId) {
+        const id = editandoServicoId.split(":").slice(1).join(":");
+        const dados = { nome, valor, tempo_minutos: tempoMin, descricao };
 
-      document.getElementById("srvNome").value = "";
-      document.getElementById("srvValor").value = "";
-      document.getElementById("srvHoras").value = "0";
-      document.getElementById("srvMinutos").value = "0";
-      document.getElementById("srvDesc").value = "";
-      document.getElementById("srvDetalhes").value = "";
+        if (editandoServicoTabela === "servicos") {
+          dados.detalhes = detalhes;
+        }
+
+        await api(editandoServicoTabela + "?id=eq." + id, {
+          method: "PATCH",
+          body: JSON.stringify(dados)
+        });
+      } else {
+        await api("servicos", {
+          method: "POST",
+          body: JSON.stringify({
+            nome,
+            valor,
+            tempo_minutos: tempoMin,
+            descricao,
+            detalhes,
+            ativo: true
+          })
+        });
+      }
+
+      cancelarEdicaoServico();
 
       await carregar();
     }
@@ -4843,53 +4852,7 @@
         const item = document.createElement("div");
         item.className = "item";
 
-        if (editandoExtraId === adicional.id) {
-          item.innerHTML = `
-            <strong>Editando adicional</strong>
-
-            <div class="inline-edit">
-              <label>Nome</label>
-              <input class="editAddNome"
-                value="${escapeHTML(adicional.nome)}">
-
-              <div class="grid2">
-                <div>
-                  <label>Valor</label>
-                  <input class="editAddValor" type="number" step="0.01"
-                    value="${Number(adicional.valor || 0)}">
-                </div>
-
-                <div>
-                  <label>Tempo adicional em minutos</label>
-                  <input class="editAddTempo" type="number" min="1"
-                    value="${Number(adicional.tempo_minutos || 0)}">
-                </div>
-              </div>
-
-              <label>Descrição</label>
-              <input class="editAddDesc"
-                value="${escapeHTML(adicional.descricao || "")}">
-
-              <div class="inline-edit-actions">
-                <button class="btn btn-primary btn-small salvar-edicao">
-                  Salvar alterações
-                </button>
-                <button class="btn btn-soft btn-small cancelar-edicao">
-                  Cancelar
-                </button>
-              </div>
-            </div>
-          `;
-
-          item.querySelector(".salvar-edicao").onclick =
-            () => salvarEdicaoExtra(adicional.id, item);
-
-          item.querySelector(".cancelar-edicao").onclick = () => {
-            editandoExtraId = null;
-            renderExtras();
-          };
-        } else {
-          item.innerHTML = `
+        item.innerHTML = `
             <strong>${escapeHTML(adicional.nome)}</strong><br>
             R$${money(adicional.valor)} • +${adicional.tempo_minutos}min<br>
             <span class="muted">${escapeHTML(adicional.descricao || "")}</span>
@@ -4904,21 +4867,40 @@
             </div>
           `;
 
-          item.querySelector(".editar-extra").onclick = () => {
-            editandoExtraId = adicional.id;
-            renderExtras();
+        item.querySelector(".editar-extra").onclick = () =>
+          iniciarEdicaoExtra(adicional);
 
-            requestAnimationFrame(() =>
-              document.querySelector(".editAddNome")?.focus()
-            );
-          };
-
-          item.querySelector(".excluir-extra").onclick =
-            () => desativar("adicionais", adicional.id);
-        }
+        item.querySelector(".excluir-extra").onclick =
+          () => desativar("adicionais", adicional.id);
 
         lista.appendChild(item);
       });
+    }
+
+    function iniciarEdicaoExtra(adicional) {
+      editandoExtraId = adicional.id;
+
+      document.getElementById("addNome").value = adicional.nome || "";
+      document.getElementById("addValor").value = Number(adicional.valor || 0);
+      document.getElementById("addTempo").value = Number(adicional.tempo_minutos || 0);
+      document.getElementById("addDesc").value = adicional.descricao || "";
+      document.getElementById("salvarExtra").textContent = "Salvar alterações";
+      document.getElementById("cancelarEdicaoExtra").style.display = "block";
+
+      document.getElementById("addNome").scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }
+
+    function cancelarEdicaoExtra() {
+      editandoExtraId = null;
+      document.getElementById("addNome").value = "";
+      document.getElementById("addValor").value = "";
+      document.getElementById("addTempo").value = "";
+      document.getElementById("addDesc").value = "";
+      document.getElementById("salvarExtra").textContent = "Salvar adicional";
+      document.getElementById("cancelarEdicaoExtra").style.display = "none";
     }
 
     async function salvarAdd() {
@@ -4932,21 +4914,26 @@
         return;
       }
 
-      await api("adicionais", {
-        method: "POST",
-        body: JSON.stringify({
-          nome,
-          valor: Number(valor),
-          tempo_minutos: Number(tempoMin),
-          descricao,
-          ativo: true
-        })
-      });
+      const dados = {
+        nome,
+        valor: Number(valor),
+        tempo_minutos: Number(tempoMin),
+        descricao
+      };
 
-      document.getElementById("addNome").value = "";
-      document.getElementById("addValor").value = "";
-      document.getElementById("addTempo").value = "";
-      document.getElementById("addDesc").value = "";
+      if (editandoExtraId) {
+        await api("adicionais?id=eq." + editandoExtraId, {
+          method: "PATCH",
+          body: JSON.stringify(dados)
+        });
+      } else {
+        await api("adicionais", {
+          method: "POST",
+          body: JSON.stringify({ ...dados, ativo: true })
+        });
+      }
+
+      cancelarEdicaoExtra();
 
       await carregar();
     }
@@ -5811,6 +5798,8 @@
 
     document.getElementById("salvarServico").onclick = salvarSrv;
     document.getElementById("salvarExtra").onclick = salvarAdd;
+    document.getElementById("cancelarEdicaoServico").onclick = cancelarEdicaoServico;
+    document.getElementById("cancelarEdicaoExtra").onclick = cancelarEdicaoExtra;
     document.getElementById("salvarHorarios").onclick = salvarHorariosAdmin;
     document.getElementById("salvarIndisponivel").onclick = salvarDiaIndisponivel;
     document.getElementById("salvarConfig").onclick = salvarConfigSupabase;
