@@ -3392,6 +3392,12 @@
         : [];
     }
 
+    function adicionaisDoAgendamento(agendamento) {
+      return Array.isArray(agendamento.adicionais)
+        ? agendamento.adicionais
+        : [];
+    }
+
     function areasDoAgendamento(agendamento) {
       return Array.isArray(agendamento.areas)
         ? agendamento.areas.filter(Boolean)
@@ -4295,6 +4301,60 @@
       const dataAtual = agendamento.data_agendamento;
       const horarioAtual = String(agendamento.horario).slice(0, 5);
       const descontoAtual = descontoDoAgendamento(agendamento);
+      const servicosAtuais = servicosDoAgendamento(agendamento);
+      const adicionaisAtuais = adicionaisDoAgendamento(agendamento);
+
+      const opcoesServicosHTML = servicosDisponiveis()
+        .map(servico => {
+          const marcado = servicosAtuais.some(item =>
+            String(item.id) === String(servico.id)
+          );
+
+          return `
+            <label class="service-option">
+              <div class="service-option-content">
+                <strong>${escapeHTML(servico.nome)}</strong>
+              </div>
+              <div class="service-option-price">
+                R$${money(servico.valor)}<br>
+                <small>${tempo(servico.tempo_minutos)}</small>
+              </div>
+              <input
+                type="checkbox"
+                class="editAgendaServico"
+                value="${escapeHTML(chaveSelecaoServico(servico))}"
+                ${marcado ? "checked" : ""}
+              >
+            </label>
+          `;
+        })
+        .join("");
+
+      const opcoesAdicionaisHTML = adicionaisVisiveis()
+        .map(adicional => {
+          const marcado = adicionaisAtuais.some(item =>
+            String(item.id) === String(adicional.id)
+          );
+
+          return `
+            <label class="extra">
+              <div>
+                <strong>${escapeHTML(adicional.nome)}</strong>
+              </div>
+              <div class="extra-price">
+                R$${money(adicional.valor)}<br>
+                <small>+${adicional.tempo_minutos}min</small>
+              </div>
+              <input
+                type="checkbox"
+                class="editAgendaAdicional"
+                value="${escapeHTML(String(adicional.id))}"
+                ${marcado ? "checked" : ""}
+              >
+            </label>
+          `;
+        })
+        .join("");
 
       editor.innerHTML = `
         <strong>Alterar data e horário</strong>
@@ -4315,6 +4375,29 @@
           </button>
           <button class="btn btn-soft btn-small fecharEdicaoAgenda">
             Fechar
+          </button>
+        </div>
+
+        <div class="top-space">
+          <strong>Alterar serviços e adicionais</strong>
+          <p class="muted">
+            Marque para adicionar ou manter. Desmarque para retirar.
+          </p>
+
+          <label>Serviços</label>
+          <div class="service-options">
+            ${opcoesServicosHTML}
+          </div>
+
+          <label>Adicionais</label>
+          <div>
+            ${opcoesAdicionaisHTML || '<p class="muted">Nenhum adicional cadastrado.</p>'}
+          </div>
+
+          <div class="discount-preview resumoServicosAgenda"></div>
+
+          <button class="btn btn-primary btn-small salvarServicosAgenda">
+            Salvar serviços e adicionais
           </button>
         </div>
 
@@ -4345,6 +4428,54 @@
       const horarioSelect = editor.querySelector(".novoHorarioAgenda");
       const descontoInput = editor.querySelector(".descontoAgenda");
       const resumoDesconto = editor.querySelector(".resumoDescontoAgenda");
+      const resumoServicos = editor.querySelector(".resumoServicosAgenda");
+      const opcoesServicos = servicosDisponiveis();
+      const opcoesAdicionais = adicionaisVisiveis();
+
+      const selecaoAtualDoEditor = () => {
+        const servicosSelecionados = [
+          ...editor.querySelectorAll(".editAgendaServico:checked")
+        ]
+          .map(campo =>
+            opcoesServicos.find(item =>
+              chaveSelecaoServico(item) === campo.value
+            )
+          )
+          .filter(Boolean);
+
+        const adicionaisSelecionados = [
+          ...editor.querySelectorAll(".editAgendaAdicional:checked")
+        ]
+          .map(campo =>
+            opcoesAdicionais.find(item =>
+              String(item.id) === campo.value
+            )
+          )
+          .filter(Boolean);
+
+        const valor = [...servicosSelecionados, ...adicionaisSelecionados]
+          .reduce((total, item) => total + numeroSeguro(item.valor), 0);
+
+        const duracao = [...servicosSelecionados, ...adicionaisSelecionados]
+          .reduce((total, item) => total + numeroSeguro(item.tempo_minutos), 0);
+
+        return {
+          servicosSelecionados,
+          adicionaisSelecionados,
+          valor,
+          duracao
+        };
+      };
+
+      const atualizarResumoServicos = () => {
+        const selecao = selecaoAtualDoEditor();
+
+        resumoServicos.innerHTML =
+          `Serviços: ${selecao.servicosSelecionados.length}<br>` +
+          `Adicionais: ${selecao.adicionaisSelecionados.length}<br>` +
+          `Tempo: ${tempo(selecao.duracao)}<br>` +
+          `<strong>Valor: R$${money(selecao.valor)}</strong>`;
+      };
 
       const atualizarResumoDesconto = () => {
         const valorBase = valorBaseDoAgendamento(agendamento);
@@ -4363,10 +4494,12 @@
 
       const atualizarOpcoes = () => {
         const dataEscolhida = dataInput.value;
+        const duracaoSelecionada = selecaoAtualDoEditor().duracao ||
+          duracaoDoAgendamento(agendamento);
 
         const opcoes = opcoesHorarioAdmin(
           dataEscolhida,
-          duracaoDoAgendamento(agendamento),
+          duracaoSelecionada,
           agendamento.id
         );
 
@@ -4395,6 +4528,16 @@
       };
 
       dataInput.onchange = atualizarOpcoes;
+      editor.querySelectorAll(
+        ".editAgendaServico, .editAgendaAdicional"
+      ).forEach(campo => {
+        campo.onchange = () => {
+          atualizarResumoServicos();
+          atualizarOpcoes();
+        };
+      });
+
+      atualizarResumoServicos();
       atualizarOpcoes();
 
       editor.querySelector(".fecharEdicaoAgenda").onclick = () => {
@@ -4407,6 +4550,78 @@
         const botao = editor.querySelector(".aplicarDesconto");
 
         await salvarDescontoAgendamento(agendamento, desconto, botao);
+      };
+
+      editor.querySelector(".salvarServicosAgenda").onclick = async () => {
+        const selecao = selecaoAtualDoEditor();
+        const botao = editor.querySelector(".salvarServicosAgenda");
+
+        if (!selecao.servicosSelecionados.length) {
+          alert("Escolha pelo menos um serviço.");
+          return;
+        }
+
+        if (!horarioDisponivelParaAdmin(
+          horarioAtual,
+          dataAtual,
+          selecao.duracao,
+          agendamento.id
+        )) {
+          alert(
+            "Com o novo tempo dos serviços, este horário não está disponível. " +
+            "Altere primeiro a data ou o horário."
+          );
+          return;
+        }
+
+        const servicosSnapshot = selecao.servicosSelecionados.map(item => ({
+          id: item.id,
+          nome: item.nome,
+          valor: numeroSeguro(item.valor),
+          tempo_minutos: numeroSeguro(item.tempo_minutos)
+        }));
+
+        const adicionaisSnapshot = selecao.adicionaisSelecionados.map(item => ({
+          id: item.id,
+          nome: item.nome,
+          valor: numeroSeguro(item.valor),
+          tempo_minutos: numeroSeguro(item.tempo_minutos)
+        }));
+
+        const servicoPrincipal = selecao.servicosSelecionados.find(item =>
+          item._origemServico !== "adicional"
+        ) || servicos[0] || null;
+
+        const desconto = Math.min(descontoAtual, selecao.valor);
+        const valorFinal = valorFinalComDesconto(selecao.valor, desconto);
+
+        try {
+          botao.disabled = true;
+          botao.textContent = "Salvando...";
+
+          await api("agendamentos?id=eq." + agendamento.id, {
+            method: "PATCH",
+            body: JSON.stringify({
+              servico_id: servicoPrincipal?.id || null,
+              servicos: servicosSnapshot,
+              adicionais: adicionaisSnapshot,
+              tempo_total_minutos: selecao.duracao,
+              valor_original: selecao.valor,
+              desconto_valor: desconto,
+              valor_total: valorFinal
+            })
+          });
+
+          editandoAgendamentoId = null;
+          await carregarAgenda();
+
+          alert("Serviços e adicionais atualizados com sucesso.");
+        } catch (erro) {
+          alert("Erro ao atualizar serviços e adicionais: " + erro.message);
+        } finally {
+          botao.disabled = false;
+          botao.textContent = "Salvar serviços e adicionais";
+        }
       };
 
       editor.querySelector(".salvarNovoHorario").onclick = async () => {
